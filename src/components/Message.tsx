@@ -1,56 +1,52 @@
-import { User, Bot } from 'lucide-react'
-import { cn } from '../lib/utils'
-
-export type MessageType = {
-  id: string
-  content: string
-  role: 'user' | 'assistant'
-  timestamp: Date
-}
+import { Message as MessageType } from "../lib/types";
+import { format } from "date-fns";
+import { User, Bot } from "lucide-react";
+import { cn } from "../lib/utils";
 
 interface MessageProps {
-  message: MessageType
+  message: MessageType;
 }
 
-export default function Message({ message }: MessageProps) {
-  const isUser = message.role === 'user'
-  
+const Message = ({ message }: MessageProps) => {
+  const isUser = message.role === "user";
+  const formattedTime = format(message.timestamp, "h:mm a");
+
   return (
-    <div className={cn(
-      "flex gap-4 p-4 transition-all ease-in-out duration-200",
-      isUser ? "bg-muted/50" : "bg-background",
-    )}>
-      <div className="flex-shrink-0">
-        <div className={cn(
-          "flex items-center justify-center w-8 h-8 rounded-md",
-          isUser ? "bg-primary-500/10 text-primary-600" : "bg-purple-500/10 text-purple-600"
-        )}>
-          {isUser ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
-        </div>
+    <div
+      className={cn(
+        "flex w-full gap-3 p-4",
+        isUser ? "bg-background" : "bg-muted/30"
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-md",
+          isUser
+            ? "bg-primary text-primary-foreground"
+            : "bg-purple-600 text-white"
+        )}
+      >
+        {isUser ? (
+          <User className="h-5 w-5" />
+        ) : (
+          <Bot className="h-5 w-5" />
+        )}
       </div>
-      
-      <div className="flex-1 space-y-2">
+      <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">
-            {isUser ? 'You' : 'Claude AI'}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {formatTime(message.timestamp)}
-          </span>
+          <p className="font-medium">{isUser ? "You" : "Claude IA 3/7"}</p>
+          <span className="text-xs text-muted-foreground">{formattedTime}</span>
         </div>
-        
-        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-          {message.content}
+        <div className="prose prose-sm dark:prose-invert max-w-none">
+          {message.content.split("\n").map((paragraph, i) => (
+            <p key={i} className={i > 0 ? "mt-1" : ""}>
+              {paragraph}
+            </p>
+          ))}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat('en', {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true
-  }).format(date)
-}
+export default Message;
